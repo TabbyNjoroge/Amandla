@@ -1,3 +1,5 @@
+#dplyr functions....select...filter....arrange....mutate....patterns 
+
 #Getting the data
 dataset=read.csv("C:/Users/HP/Downloads/wafanyikazi.csv")
 
