@@ -4,21 +4,38 @@ dataset=read.csv("C:/Users/HP/Downloads/wafanyikazi.csv")
 #Loading Tidyverse
 library(tidyverse)
 
-#select-for picking/dropping variables
-data1=dataset %>% 
+######select function  - used for picking/dropping variables of interest ##############################
+##E.g.Formulating a data set that has only a selected no. of variables
+
+data1 = dataset %>% 
   select (Department,Income,Marital_Status)
-data2=dataset %>% 
+
+##select for dropping variables from the dataset that you might not need 
+##E.g. Dropping leave days from the dataset.
+
+data2 = dataset %>% 
   select (-Leave_Days)
-#contains
-data3=dataset %>% 
+
+## select for picking variables that contain an elemenent of interest. 
+##E.g. Variables containing the letter 'A'
+
+data3 = dataset %>% 
   select(contains ('A'))
-#endswith
-data4=dataset %>% 
+
+##selecting  varables that end with a certain element of interest. 
+##E.g. From the data set, select variables that end with the letter 't'
+
+data4 = dataset %>% 
   select(ends_with ('t'))
 
-#mutate
 
-#patterns
+##selecting  varables that start with a certain element of interest. 
+##E.g. From the data set, select variables that end with the letter 'M'
+
+data4i = dataset %>% 
+  select(starts_with('g'))
+
+########patterns######################################################################
 t = "i have two babies"
 grepl("e",t,ignore.case = TRUE)
 grep("e",t,ignore.case = TRUE, value = T)
