@@ -1,0 +1,203 @@
+---
+title: "2019 Kenya Population and Housing Census"
+author: "Tabitha Njoroge"
+date: "5/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	fig.height = 4,
+	fig.width = 9,
+	message = FALSE,
+	warning = FALSE)
+```
+
+## 1. Launching the required packages
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+```
+
+## 2. Reading the required data sets 
+```{r}
+##The rKenyaCensus package was developed by Shelmith Kariuki. It has been of great value in acquiring data sets on the most recent Kenya census, 2019. 
+
+#census = devtools::install_github("Shelmith-Kariuki/rKenyaCensus")
+censusdf1 = rKenyaCensus::V1_T2.5
+censusdf2 = rKenyaCensus::V3_T2.2b
+censusdf5 = rKenyaCensus::V2_T1.1
+```
+
+## 3. Kenya Population Trend.
+<br>
+```{r}
+##The dataset used is censusdf5
+
+## The variable '`Population (millions)`' is of character structure. We first convert it to numeric
+censusdf5$`Population (millions)` = as.numeric(censusdf5$`Population (millions)`)
+
+## Renaming `Population (millions)`
+censusdf5_rename = censusdf5 %>%
+  rename(Population_in_millions = `Population (millions)`)
+
+kable_styling(knitr::kable(censusdf5_rename,row.names = FALSE),
+              full_width = F, position = "left", )
+```
+
+
+```{r}
+#The linegraph
+pop_linegraph = ggplot(data = censusdf5_rename, 
+                       aes(x = Year,                                                    y =Population_in_millions, group = 1))+
+                geom_line(size = 0.6, color = "maroon")+
+                geom_text(aes(label = Population_in_millions), 
+                          size = 3)+
+                theme(plot.title = element_text(face = "bold", 
+                                                size = 12, 
+                                                hjust = 0.5),
+                      plot.subtitle = element_text(face = "bold",
+                                                   size = 10,
+                                                   hjust = 0.5),
+                      plot.caption = element_text(size = 8, 
+                                                  colour = "blue"),
+                      axis.title = element_text(face = "bold", 
+                                                size = 10),
+                      axis.text = element_text(face = 12, 
+                                               size = 10),
+                      axis.line = element_line(size = 1.2),
+                      panel.background = element_rect(fill = "NA"))+
+                scale_y_continuous(limits = c(0, 50), 
+                                   breaks = seq(0, 50, by = 5))+
+                labs(title = "Kenya Population Trend",
+                     subtitle = "Eight Census Periods",
+                     caption = "Graph by Tabitha",
+                     x = "Year",
+                     y = "Population Count (in Millions)")
+pop_linegraph
+```
+
+
+## 4. Number of females in Mombasa County by Subcounty.
+<br>
+```{r cars}
+## Generating the data:
+census_df1 = censusdf1 %>%
+  filter(County == "Mombasa County") %>%
+  select(SubCounty, Female)
+
+kable_styling(knitr::kable(census_df1,row.names = FALSE),
+              full_width = F, position = "left", )
+
+## Generating the bargraph:
+msa_female_count = ggplot(data = census_df1,
+                          aes(x = reorder(SubCounty,Female),
+                              y = Female))+
+                   geom_bar(stat = "identity", fill = "maroon", 
+                            size = 6)+
+                   geom_text(aes(label = Female), hjust = -0.25, 
+                             vjust = 0.5, 
+                             size = 3)+
+                   theme(plot.title= element_text(face = "bold", 
+                                                  size = 14, 
+                                                  hjust = 0.5),
+                         plot.subtitle = element_text
+                         (face = "bold",size = 12,hjust = 0.5),
+                         plot.caption = element_text
+                         (size = 8, colour = "blue"),
+                         axis.title = element_text
+                         (face = "bold", size = 10),
+                         axis.text = element_text
+                         (face = 12, size = 10),
+                         axis.line = element_line(size = 1.2),
+                         panel.background = element_rect
+                         (fill = "NA"))+
+                  scale_y_continuous(limits = c(0, 650000),
+                                     breaks = seq(0, 650000, 
+                                                  by = 50000))+
+                  coord_flip()+
+                  labs(title = "Female Count in Mombasa County", 
+                       subtitle = "By Subcounty", 
+                       caption = "Graph by Tabitha",
+                       x = "Mombasa Subcounties",
+                       y = "Female Count")
+msa_female_count
+
+```
+<br>
+Creating an object name for bargraph themes
+<br>
+```{r}
+##Bargraphs theme
+bgraph_theme = theme(plot.title= element_text
+                     (face = "bold", size = 14, hjust = 0.5),
+                     plot.subtitle = element_text
+                     (face = "bold",size = 12,hjust = 0.5),
+                     plot.caption = element_text
+                     (size = 8, colour = "blue"),
+                     axis.title = element_text
+                     (face = "bold", size = 10),
+                     axis.text = element_text
+                     (face = 12, size = 10),
+                     axis.line = element_line(size = 1.2),
+                     panel.background = element_rect
+                     (fill = "NA"))
+
+
+```
+
+## 5. Number of intersex individuals in different age groups
+<br>
+```{r}
+#The required data:
+
+##Removing unnecessary values/character from Age variable
+intersex_age = censusdf2 %>%
+  filter(Age != "Total" & Age != "Not Stated" & 
+          Age!= "100+" &
+           !Age %in% grep("-", Age, ignore.case = TRUE, value = T))
+intersex_age
+
+##Since Age variable is in character, we convert it to numeric
+intersex_age$Age = (as.numeric(as.character(intersex_age$Age)))
+
+## Final required table, including factoring and labeling the mutated variable
+intersex_age_i = intersex_age %>% 
+  mutate(intersex_age_group = ifelse(Age >= 0 & 
+                                       Age <= 18, "Minor(0-18yrs)",
+                             ifelse(Age >= 19 & 
+                                      Age <= 45, "Youth(19-45yrs)",
+                             ifelse(Age >=46 & 
+                                      Age<=65, "Senior Adults(46-65yrs)",
+                             ifelse(Age >= 66 & 
+                                      Age <= 85,"Senior citizens(66-85yrs)",
+                                    "Old(Above 85yrs)"))))) %>%
+  mutate(intersex_age_group = factor(intersex_age_group, 
+                                     levels = c("Minor(0-18yrs)", "Youth(19-45yrs)", "Senior Adults(46-65yrs)", "Senior citizens(66-85yrs)", "Old(Above 85yrs)"),
+                                     labels = c("Minor\n(0-18yrs)", "Youth\n(19-45yrs)", "Senior Adults\n(46-65yrs)", "Senior citizens\n(56-85yrs)", "Old\n(Above 85yrs)"))) %>% 
+  group_by(intersex_age_group) %>%
+  summarise(count = n()) 
+
+
+kable_styling(knitr::kable(intersex_age_i,row.names = FALSE),
+              full_width = F, position = "left", )
+
+##Bargraph of intersex age-groups
+intersex_bargraph = ggplot(data = intersex_age_i,
+                           aes(x = intersex_age_group, y = count))+
+                    geom_bar(stat = "identity", fill = "red", 
+                             width = 0.4)+
+                    geom_text(aes(label = count), size = 3, hjust = 0.5, 
+                              vjust = -0.25)+
+                    bgraph_theme+
+                    labs(title = "Number of Intersex Kenyan Citizens", 
+                         subtitle = "By Age-group",
+                         caption = "Graph by Tabitha",
+                         x = "Age-Groups",
+                         y = "Frequency")+
+                    ylim(c(0,30))
+intersex_bargraph
+```
+

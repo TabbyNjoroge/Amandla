@@ -1,0 +1,250 @@
+---
+title: "Bargraphs for One and Two Grouping Variables"
+author: "Tabitha Njoroge"
+date: "3/29/2020"
+output: html_document
+---
+### 1. Set the chunk options
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	fig.height = 4,
+	fig.width = 12,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+### 2. Load the required packages
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+
+### 3. Read in the required datasets
+```{r}
+df = read.csv("C:/Users/Peter/Desktop/Wambui-Rstudio/rjourney/datasets/wafanyikazi.csv")
+data = read.csv("C:/Users/Peter/Desktop/Wambui-Rstudio/rjourney/datasets/training_data.csv")
+
+
+```
+### 4. Generating a bargraph
+#### 4.1 Bargraph for one grouping variable
+<br>
+4.1.1 Department Distribution Bargraph
+<b>
+```{r}
+##Generate the required dataset
+dept  = df %>% 
+  group_by(Department) %>% 
+  summarise(count = n())
+
+knitr::kable(dept)
+
+### Generate the bargraph               
+dept_bargraph = ggplot(data = dept, aes (x = Department, y = count)) +
+                geom_bar(stat = "identity",fill = "red", width = 0.7) +
+                geom_text(aes(label = count), hjust = 0.5, vjust = -0.25) +
+                theme(plot.title = element_text(face = "bold",
+                                                hjust = 0.5, 
+                                                size = 16),
+                      plot.subtitle = element_text(face = "bold",size = 16,
+                                                   hjust = 0.5),
+                      plot.caption = element_text(face = "italic",size = 10,
+                                                  colour = "blue"),
+                      axis.title = element_text(face = "bold", size = 14),
+                      axis.text = element_text(face = 12, size = 12),
+                      axis.line = element_line(size = 1.3),
+                      panel.background = element_rect(fill = "NA")) +
+                  labs(title = "Department Distribution",
+                       subtitle = "Barplot",                        
+                       caption = "Figure 4.1.1",
+                       x = "Department",
+                       y = "Frequency")
+dept_bargraph
+```
+
+*Give the theme of the bargraph an object name for purposes of reptitive use
+
+```{r}
+bargraph_theme = theme(plot.title = element_text(face = "bold", 
+                                                 hjust = 0.5,size = 16),
+                 plot.subtitle = element_text(face = "bold",size = 8, 
+                                           hjust = 0.5),
+                 plot.caption = element_text(face = "italic",size = 10, 
+                                          colour = "blue"),
+                 axis.title = element_text(face = "bold", size = 14),
+                 axis.text = element_text(face = 12, size = 12),
+                 axis.line = element_line(size = 1.3),
+                 panel.background = element_rect(fill = "NA"))
+```
+
+<b>
+<b>
+4.1.2 Average Income per County
+<b>
+```{r}
+##Generate the required dataset
+average_county_income = df %>% 
+  group_by(County) %>%
+  summarise(average_income = round(mean(Income),0))
+
+knitr::kable(average_county_income)
+
+### Generate the bargraph
+county_bargraph = ggplot(data = average_county_income, aes(x = County, y = average_income))+
+                  geom_bar(stat = "identity", fill = "cyan", width = 0.7)+
+                  geom_text(aes(label = average_income), hjust = 0.5,
+                            vjust = -0.25, size = 3)+
+                  bargraph_theme+
+                  labs (title = "Average Income per County", 
+                        caption = "Figure 4.1.2",
+                        x = "County",
+                        y  = "Average Income")
+county_bargraph
+
+```
+
+#### 4.2 Bargraph for two grouping variable
+<br>
+4.2.1 Average age per department and per role
+<b>
+```{r}
+##Generate the required dataset
+age_dept_role = df %>% 
+  group_by(Department, Role) %>% 
+  summarise(average_age = round(mean(Age),0))
+
+knitr::kable(age_dept_role)
+
+#Generate the graph
+dept_role_bg = ggplot(data = age_dept_role, aes(x = Department, 
+                                                y = average_age, 
+                                                fill = Role))+
+               geom_bar(stat = "identity", position = "dodge") +
+               geom_text(aes(label = average_age), hjust = 0.5, 
+                         vjust = -0.25, 
+                         position = position_dodge(width = 0.9)) +
+               bargraph_theme+
+               theme(legend.title = element_blank())+
+               scale_fill_manual(values = c("purple","pink","cyan"))+
+               labs(title = "Average Age \n per \n Department per Role", 
+                    caption = "Figure 4.2.1",
+                          x = "Role",
+                          y = "Average Age")
+dept_role_bg
+
+```
+
+#### 5. FSDT Data by Zindi
+<b>
+Gender distribution in the three age groups
+```{r}
+###Gender Count per Age group
+##Generate the required dataset
+tab1 = data %>% 
+  select(ID, Q1, Q2) %>% 
+  mutate(gender = ifelse(Q2 == 1, "Male", "Female")) %>% 
+  rename(age = Q1) %>% 
+  mutate(age_groups = ifelse(age >= 15 & age <=35, "Youth",
+                       ifelse(age >= 36 & age <= 65, "Mid-age",
+                              "Senior Citizens"))) %>% 
+  group_by(age_groups, gender) %>% 
+  summarise(age_groups_count = n())
+
+knitr::kable(tab1)
+
+##Generate the bargraph
+gender_age_bargraph = ggplot(data = tab1, aes(x = age_groups, 
+                                              y = age_groups_count, 
+                                              fill = gender))+
+                      geom_bar(stat = "identity", position = "dodge")+
+                      geom_text(aes(label = age_groups_count), hjust = 0.5,
+                                vjust = -0.25, 
+                                size = 3, color = "red", 
+                                position = position_dodge(width = 0.7))+
+                      theme(legend.title = element_blank())+
+                      bargraph_theme +
+                      scale_fill_manual(values = c("purple", "pink"))+
+                      labs(title = "Gender Distribution per Age group", 
+                           caption = "FSDT 2017; Fig 5.1",
+                           x = "Age_groups", 
+                           y = "Count")
+gender_age_bargraph 
+```
+<b>
+Gender distribution on 'Money from Savings Interest / Investments'.
+<b>
+```{r}
+## Generate the required data
+gender_income = data %>%
+  select(ID, Q2, Q8_6) %>%
+  mutate(gender = ifelse(Q2 == 1, "Male", "Female")) %>%
+  mutate(invest_income = ifelse(Q8_6 == 1, "Yes", "No")) %>%
+  group_by(gender, invest_income) %>%
+  summarise(Count = n()) %>%
+  mutate(perc = round((Count/sum(Count))*100,1))
+
+knitr::kable(gender_income)
+
+
+## Generate the bar graph
+gender_income_bargraph = ggplot(data = gender_income, aes(x = invest_income,
+                                                          y = perc, 
+                                                          fill =gender))+
+                         geom_bar(stat = "identity", position = "dodge",
+                                  width = 0.6)+
+                         geom_text(aes(label = paste0(perc, "%")), 
+                                   hjust = 0.5, vjust = -0.3,
+                                   size = 3,
+                                   position = position_dodge(width = 0.7))+
+                         bargraph_theme+
+                         theme(legend.title = element_blank())+
+                         scale_y_continuous(labels = function(x) 
+                           paste0(x, "%"))+
+                         scale_fill_manual(values = c("purple","pink"))+
+            labs(title = "Gender Distribution in Savings/Investment Income",
+                 subtitle = "(Gender percentage on income from savings interests,investments,stocks,unit trusts etc.)",
+                 caption = "FSDT 2017; Fig 5.2",
+                       x = "Savings/Investment Income",
+                       y = "Percent")
+gender_income_bargraph
+
+```
+<br>
+Distribution of Respondents' Education Level
+<br>
+```{r}
+#Generate the required data
+educ_data = data %>%
+  select(ID, Q1, Q4) %>% 
+  rename(Age = Q1,Education_Level = Q4) %>%
+  mutate(educ_level = if_else(Education_Level == 1, "No formal education",
+                      if_else(Education_Level == 2, "Some Primary",
+                      if_else(Education_Level == 3, "Primary completed",
+                      if_else(Education_Level == 4, "Post primary technical training",
+                      if_else(Education_Level == 5, "Some secondary",
+                      if_else(Education_Level == 6, "University or other higher education","Don’t know"))))))) %>%
+  group_by(educ_level) %>%
+  summarise(educ_count = n())
+educ_data
+
+#Generate the bargraph(with the bars ordered)
+educ_bargraph = ggplot(data = educ_data, 
+                       aes(x = educ_level, 
+                           y = educ_count))+
+                geom_bar(stat = "identity", fill = "purple")+
+                geom_text(aes(label = educ_count, hjust = -0.3, 
+                              vjust = 0.5))+
+                bargraph_theme+
+                coord_flip()+
+                scale_y_continuous(limits = c(0,3500), breaks = seq(0,3500,
+                                                                    by=500))+
+                labs(title = "Distribution of Respondents' Education Level",
+                     caption = "FSDT 2017;Fig 5.3",
+                     x = "Education Level",
+                     y = "Frequency")
+educ_bargraph
+
+```
