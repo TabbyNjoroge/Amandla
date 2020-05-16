@@ -1,0 +1,371 @@
+One sample t_test: 
+#This is one of the most popular statistical tests. It is used to test the difference between a hypothesized(claimed) mean value and a calculated sample mean value.  
+
+
+Steps we need to take while carrying out a hypothesis test.
+
+#Step 1: State the hypothesis
+Null hypothesis: U = 50
+Alternative hypothesis: U != 50 (two tailed test)
+U < 50 (one tailed test)
+U > 50 (one tailed test)
+
+#Step 2: Calculate the t-statistic (t-calc)
+required: sample mean, sample standard deviation, sample size(n),and
+hypothesised mean(U)
+tstatistic = (sample mean - hypothesised mean(U))/
+  (standard deviation/sqrt(sample size(n)))
+
+#Step 3: Determine the degrees of freedom (read about this)
+df: sample size(n) - 1
+
+#Step 4: Determine the confidence level (alpha = 100% - conf level)
+95% (5% = 0.05) , 99%(1% = 0.01), 90%(10% = 0.1)
+
+#Step 5: Determine the t-tabulated (t-tab)
+two tailed test: t(alpha/2, df)
+e.g t(0.025, 19)
+In R, the code would be:
+qt(area to the left of the critical value, df)
+qt(1-(alpha/2), df) e.g
+qt(1-(0.05/2), 19) = 2.093024
+
+one tailed test: t(0.05, 19)
+qt(area to the left of the critical value, df)
+qt(1-(alpha), df) e.g
+qt(1-(0.05), 19) 
+
+#Step 6: Making conclusion
+
+
+
+
+##Example 1
+H0:U=50, H1: U < 50, n = 20.
+alpha = 0.05, df = 19 
+
+from the tables: (-1.729)
+from R: qt(area to the left of the critical value, df)
+qt(0.05,19) = -1.729133
+
+##Example 2
+H0:U=50, H1: U > 50, n = 25.
+alpha = 0.05, df = 24 
+
+from the tables: (1.711)
+from R: qt(area to the left of the critical value, df)
+qt((1-0.05),24) = 1.710882
+
+##Example 3
+H0:U=70, H1: U > 70, n = 18.
+alpha = 0.05, df = 17 
+
+from the tables: (1.740)
+from R: qt(area to the left of the critical value, df)
+qt((1-0.05),17) =  1.739607
+
+##Example 4
+#It is widely believed that the average body temperature for healthy adults is 98.6 degrees Fahrenheit. A study was conducted a few years go to examine this belief. The body temperatures of n = 30 healthy adults were measured (half male and half female). The average temperature from the sample was found to be x(bar) = 98.249 with a standard deviation s = 0.7332. Do these statistics contradict the belief that the average body temperature is 98.6?test at 1% significance level.
+
+
+H0:U=98.6, H1: U < 98.6, n = 30.
+alpha = 0.01, df = 29
+
+from the tables: Critical Value(c.v) = -2.462
+from R: qt(area to the left of the critical value, df)
+qt(0.01,29) = -2.462021
+
+
+##Example 5
+#The average cost of a hotel room in New York is said to be 168 dollars per night. 
+#To determine if this is true, a random sample of 25 hotels is taken and resulted in 
+#x(bar) = $172.5 and s = $15.40 . Test the appropriate hypotheses at alpha = 0.05.
+
+H0:U = 168, H1: U =! 168, n = 25.(this is a two-tailed test)
+alpha = 0.05, df = 24
+
+from the tables: c.v  = -2.064 and 2.064
+from R: qt(area to the left of the critical value, df)
+qt((0.05/2),24) = -2.063899 and qt((1-0.05/2),24) = 2.063899
+
+###Example 6
+#A study is to be done to determine if the cognitive ability of children living near a lead smelter is negatively impacted by increased exposure to lead. Suppose the average IQ for children in the United States is 100. From a pilot study, the mean and standard deviation of 15 children were found to be x = 89 and s = 14.4 respectively. Test at 5% level whether there is a negative impact.
+
+H0:U = 100, H1: U < 100, n = 15.(left-tailed test)
+alpha = 0.05, df = 14
+
+from the tables: c.v  = -1.761
+from R: qt(area to the left of the critical value, df)
+qt((0.05),14) = -1.76131 
+
+
+
+##Two sample t-test
+#Used to test the difference in means between two samples. We check for sufficient evidence that the means are different(or not). 
+
+Steps we need to take while carrying out a hypothesis test.
+
+-----------------Using the fertilizer yield data-------------------------
+The test: Are the means of the yield from the two fertilizers significantly different?
+Step 1: State the hypothesis 
+H0: U1 = U2 or U1 - U2 = 0
+H1: U1 != U2 or U1 - U2 != 0(two tailed test) or
+U1 < U2 or U1 - U2 < 0 (one tailed test) or
+U1 > U2 or  U1 - U2 > 0 (one tailed test)
+
+
+yield_a = c(452, 874, 554, 447, 356, 754, 558, 574, 664, 682, 547, 435, 245)
+yield_a
+
+yield_b = c(546, 547,774, 465, 459, 665, 467, 365, 589, 534, 456, 651, 654, 665, 546,537)
+yield_b
+
+#check for equality of variance of the two samples so as 
+#to determine the t-test fuormula to apply
+#The Hypothesis: h0: The sample variances are equal
+#                h1: The sample variances are not equal
+var.test(yield_a, yield_b)
+
+#since the p-value < 0.05, we fail to reject the null hypothesis 
+#and therefore we can assume equal variance for the two samples.
+
+#The t-statistic
+#sample mean 1:
+bar_x1 = mean(yield_a)
+bar_x1 = 549.3846
+
+#sample mean 2:
+bar_x2 = mean(yield_b)
+bar_x2 = 557.5
+
+
+#sample standard deviation 1:
+sd(yield_a)
+168.7629
+
+sample standard deviation 2
+sd(yield_b)
+104.6219
+
+sample size1(n1)
+13 
+sample size2(n2) 
+16
+
+hypothesised difference in mean
+h0: u1-u2 = 0
+h1: u1-u2 != 0
+
+#Calculate the test statistic from the 2sample t-test formula
+#Assuming equal variance
+#the denominator of the formular:
+sp = sqrt((((13-1)*(168.7629^2)) + ((16-1)*(104.6219^2)))/(13+16-2))
+sp = 136.891
+
+denom = sp*sqrt(1/13+1/16) 
+denom = 51.11429
+
+#numerator of the formular:
+nume = bar_x1 - bar_x2 
+nume = -8.115385
+
+#t-statistic(t_calc):
+t = nume/denom
+-0.1587694
+
+#degrees of freedom
+df: Assuming equal variance 
+
+df = 13 + 16 - 2 = 27 
+
+#confidence level/significance level....we will use alpha 5% or 0.05
+#reading from the tables (t_tab)
+t(alpha/2, df).....(Two-tail test)
+  t(0.05/2, 27) = -2.052 and +2.052
+  
+    #in R:
+  qt(0.05/2,27) = -2.051831 and +2.051831
+  
+#conclusion:
+#Since the t_calc is greater than t_tab, we fail to reject the null hypothesis and conclude that yileds from the two fertilizers are not significantly different.
+
+# t-test in R....JUST ONE LINE!!!
+t.test(yield_a, yield_b, var.equal = TRUE)
+
+
+--------------------WAFANYIKAZI DATA---------------------------------------------
+  
+Question: From the Wafanyikazi dataset, test whether there is a difference 
+in the mean age between single females and married females. First carry out 
+the calculations in R, then run the t.test() code to confirm the answer. 
+The conclusions should be the same. 
+
+#load package
+library(tidyverse)
+
+#Getting the data
+data = read.csv("C:/Users/Peter/Desktop/Wambui-Rstudio/rjourney/datasets/wafanyikazi.csv")
+
+#mean age of single females
+single_female = data %>%
+  filter(Gender == "Female") %>%
+  filter(Marital_Status == "Single") %>% 
+  group_by(Gender, Marital_Status) %>% 
+  summarise(sm_age = round(mean(Age),0))
+single_female
+
+#mean age of married females
+married_female = data %>%
+  filter(Gender == "Female") %>%
+  filter(Marital_Status == "Married") %>%
+  group_by(Gender, Marital_Status) %>% 
+  summarise(mm_age = round(mean(Age),0))
+married_female
+
+######Getting the age vectors#########
+# single females
+single_female_vec = data %>%
+  filter(Gender == "Female") %>%
+  filter(Marital_Status == "Single") %>%
+  select(Age) %>% 
+  pull()
+single_female_vec
+
+# married females
+married_female_vec = data %>%
+  filter(Gender == "Female") %>%
+  filter(Marital_Status == "Married") %>%
+  select(Age) %>% 
+  pull()
+married_female_vec
+
+####Check for equality of variance or not######
+var.test(single_female_vec, married_female_vec)
+#%%we get p-value = 0.9588-----we fail to reject h0: variaces are equal%%%%%
+
+###Now we carry out the hypothesis test to check for difference 
+#    in the two sample means
+Step 1: State the hypothesis
+H0: U1 = U2 or U1 - U2 = 0
+H1: U1 != U2 or U1 - U2 != 0(two tailed test) 
+
+
+Step 2: Calculate the t-statistic (t-calc)
+#sample mean 1
+x1_bar = mean(single_female_vec)
+x1_bar
+35.17568
+
+#sample mean 2
+x2_bar = mean(married_female_vec)
+x2_bar
+33.87059
+
+#sample standard deviation 1
+sd(single_female_vec)
+9.924866
+
+#sample standard deviation 2
+sd(married_female_vec)
+9.872748
+
+sample size1(n1) = 74
+table(data$Gender)
+
+sample size2(n2)  = 85
+hypothesised difference in mean
+
+
+Assuming equal variance or
+Assuming non-equal variances 
+
+
+Step 3: Determine the degrees of freedom (read about this)
+df: n1+n2-2
+74+85-2 = 157
+  
+#Getting the t-statistic 
+Assuming equal variance 
+Sp = sqrt((((74-1)*9.924866^2)+((85-1)*9.872748^2))/157)
+Sp
+9.897015
+
+num = x1_bar - x2_bar
+num
+1.305087
+
+denom = Sp*(sqrt((1/74)+(1/85)))
+denom
+1.573539
+
+t_test = num/denom
+t_test
+0.8293964
+
+Step 4: Determine the confidence level (alpha = 100% - conf level)
+95% (5% = 0.05) , 99%(1% = 0.01), 90%(10% = 0.1)
+
+Step 5: Determine the t-tabulated (t-tab)
+two tailed test: t(alpha/2, df)
+e.g t(0.025, 157) = 1.962 (#not clear from the available table we therefore use one                               given by the R code)
+In R, the code would be 
+qt(area to the left of the critical value, df)
+qt(1-(alpha/2), df) e.g
+qt(1-(0.05/2), 157) = -1.975189   1.975189
+
+#Conclusion: 
+# since t_calc is within the range of values of t_tab we fail to reject the 
+# Null Hypothesis and conclude that there is no sufficient evidence to show 
+# a significant difference in the age of single females and marries females.
+
+#The t-test in r:
+t.test(single_female_vec, married_female_vec, var.equal = TRUE)
+
+Two Sample t-test
+
+data:  single_female_vec and married_female_vec
+t = 0.8294, df = 157, p-value = 0.4081
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+  -1.802949  4.413124
+sample estimates:
+  mean of x mean of y 
+35.17568  33.87059 
+
+
+#########Difference in means of Paired samples(t-test for dependent samples)#############
+
+
+own <- c(77, 80, 69, 73, 73, 72, 75, 77)
+new <- c(72, 81, 68, 73, 75, 70, 73, 75)
+
+Let U1 = own  clubs and U2 = new clubs
+
+#Stating the hypothesis:
+H0: U2 - U1 = 0
+H1: U2 - U1 < 0
+
+#Calculating the t-statistic(t-cal)
+diff = new - own
+diff
+-1.125
+
+mean_diff = mean(diff)
+mean_diff
+-1.125
+sd_diff = sd(diff)
+sd_diff
+2.167124
+
+df = length(diff)
+df
+
+t_calc = (mean_diff - 0)/(2.167124/sqrt(8))
+t_calc
+-1.468296
+
+#t_tab
+qt(0.01, 7) = -2.997952
+
+#rCode
+t.test(new, own, alternative = "less", paired = TRUE)
